@@ -1,0 +1,107 @@
+name: Run all CI tests
+on: [pull_request, push]
+
+jobs:
+  run_all_tests:
+    runs-on: ubuntu-latest
+    name: Full CI (style and tests)
+    container: jcsda/docker-gnu-openmpi-dev:1.9
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        path: i-jedi
+        submodules: recursive
+    - name: Get dependency commit hashes
+      id: dep-hashes
+      shell: bash
+      run: |
+        set -e
+        echo "oops=$(git ls-remote https://github.com/NOAA-EMC/oops.git feature/mist | cut -f1)" >> $GITHUB_OUTPUT
+        echo "vader=$(git ls-remote https://github.com/JCSDA/vader.git develop | cut -f1)" >> $GITHUB_OUTPUT
+        mkdir -p $GITHUB_WORKSPACE/Build/lib
+    - name: Cache OOPS
+      id: cache-oops
+      uses: actions/cache@v5
+      with:
+        path: |
+          ${{ github.workspace }}/Build/oops
+          ${{ github.workspace }}/Build/lib/liboops.so
+          ${{ github.workspace }}/i-jedi/bundle/oops
+        key: ${{ runner.os }}-oops-${{ steps.dep-hashes.outputs.oops }}
+    - name: Cache VADER
+      id: cache-vader
+      uses: actions/cache@v5
+      with:
+        path: |
+          ${{ github.workspace }}/Build/vader
+          ${{ github.workspace }}/Build/lib/libvader.so
+          ${{ github.workspace }}/i-jedi/bundle/vader
+        key: ${{ runner.os }}-vader-${{ steps.dep-hashes.outputs.vader }}
+    - name: Show me things
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        pwd
+        ls -l
+        ls -l i-jedi
+        ls -l i-jedi/bundle
+        ls -l ../
+        ls -l Build
+        ls -l Build/*
+        pwd
+
+    - name: Run ecbuild
+      shell: bash
+      run: |
+        su - nonroot
+        export jedi_cmake_ROOT=/opt/view
+        source /opt/spack-environment/activate.sh
+        cd $GITHUB_WORKSPACE
+        mkdir -p Build
+        cd Build
+        export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
+        ecbuild ../i-jedi/bundle
+    - name: Run coding style checks
+      shell: bash
+      run: |
+        su - nonroot
+        export jedi_cmake_ROOT=/opt/view
+        source /opt/spack-environment/activate.sh
+        cd $GITHUB_WORKSPACE/Build/ijedi
+        ctest -R coding_norms --output-on-failure        
+    - name: Compile the code
+      shell: bash
+      run: |
+        su - nonroot
+        export jedi_cmake_ROOT=/opt/view
+        source /opt/spack-environment/activate.sh
+        cd $GITHUB_WORKSPACE/Build/ijedi
+        make -j4
+    - name: Verify what will be cached (end of job)
+      shell: bash
+      run: |
+        set -euxo pipefail
+        ls -l "${GITHUB_WORKSPACE}/Build/lib" || true
+        find "${GITHUB_WORKSPACE}/Build" -name "liboops.so" -print || true
+    - name: Show me more things
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        pwd
+        ls -l
+        ls -l i-jedi
+        ls -l i-jedi/bundle
+        ls -l ../
+        ls -l Build
+        ls -l Build/*
+    # - name: Run ctests
+    #   shell: bash
+    #   run: |
+    #     su - nonroot
+    #     export jedi_cmake_ROOT=/opt/view
+    #     source /opt/spack-environment/activate.sh
+    #     cd $GITHUB_WORKSPACE/Build/ijedi
+    #     export OMPI_ALLOW_RUN_AS_ROOT=1
+    #     export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+    #     ctest --rerun-failed --output-on-failure --allow-run-as-root

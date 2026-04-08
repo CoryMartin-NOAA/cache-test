@@ -1,0 +1,76 @@
+cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
+
+project(ijedi-bundle VERSION 0.0.1 LANGUAGES C CXX Fortran)
+
+find_package(ecbuild 3.5 REQUIRED)
+include(ecbuild_bundle)
+
+ecbuild_bundle_initialize()
+
+# ===============================================================================
+# user options
+# ===============================================================================
+option(TEST_IODA "download and ioda-data repo needed for ioda ctests" OFF)
+option(TEST_UFO "download and ufo-data repo needed for ufo ctests" OFF)
+option(TEST_SABER "download and saber-data repo needed for ioda ctests" OFF)
+
+# ECMWF libraries
+option("BUNDLE_SKIP_ECKIT" "Don't build eckit" "ON") # Skip eckit build unless user passes -DBUNDLE_SKIP_ECKIT=OFF
+option("BUNDLE_SKIP_FCKIT" "Don't build fckit" "ON") # Skip fckit build unless user passes -DBUNDLE_SKIP_FCKIT=OFF
+option("BUNDLE_SKIP_ATLAS" "Don't build atlas" "ON") # Skip atlas build unless user passes -DBUNDLE_SKIP_ATLAS=OFF
+
+# turn off optional OOPS toy models
+option(ENABLE_LORENZ95_MODEL "Build Lorenz95 toy model" OFF)
+option(ENABLE_QG_MODEL "Build QG toy model" OFF)
+
+ecbuild_bundle(PROJECT eckit GIT "https://github.com/ecmwf/eckit.git" TAG 1.16.0)
+ecbuild_bundle(PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.2)
+ecbuild_bundle(PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.35.0)
+
+# ===============================================================================
+# required repositories
+
+# ===============================================================================
+ecbuild_bundle( PROJECT jedicmake GIT    "https://github.com/jcsda/jedi-cmake.git" UPDATE BRANCH develop RECURSIVE )
+ecbuild_bundle( PROJECT oops      GIT    "https://github.com/NOAA-EMC/oops.git" UPDATE BRANCH feature/mist )
+ecbuild_bundle( PROJECT vader     GIT    "https://github.com/JCSDA/vader.git" UPDATE BRANCH develop)
+
+# ecbuild_bundle( PROJECT saber     GIT    "https://github.com/JCSDA/saber.git"      UPDATE BRANCH develop )
+#ecbuild_bundle( PROJECT ioda      GIT    "https://github.com/JCSDA/ioda.git"       UPDATE BRANCH develop )
+#ecbuild_bundle( PROJECT ufo       GIT    "https://github.com/JCSDA/ufo.git"        UPDATE BRANCH develop )
+#ecbuild_bundle(PROJECT ijedi SOURCE "../")
+
+# ===============================================================================
+# required repositories
+# ===============================================================================
+include(jedicmake/cmake/Functions/git_functions.cmake)
+
+# ===============================================================================
+# optional test data for the upstream repos
+# ===============================================================================
+if(TEST_IODA)
+  find_branch_name(REPO_DIR_NAME ioda)
+
+  if(NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED ${GIT_TAG_FUNC})
+    ecbuild_bundle(PROJECT ioda-data GIT "https://github.com/JCSDA-internal/ioda-data.git" BRANCH develop UPDATE)
+  endif()
+endif()
+
+if(TEST_UFO)
+  find_branch_name(REPO_DIR_NAME ufo)
+
+  if(NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED ${GIT_TAG_FUNC})
+    ecbuild_bundle(PROJECT ufo-data GIT "https://github.com/JCSDA-internal/ufo-data.git" BRANCH develop UPDATE)
+  endif()
+endif()
+
+if(TEST_SABER)
+  find_branch_name(REPO_DIR_NAME saber)
+
+  if(NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED ${GIT_TAG_FUNC})
+    ecbuild_bundle(PROJECT saber-data GIT "https://github.com/JCSDA-internal/saber-data.git" BRANCH develop UPDATE)
+  endif()
+endif()
+
+# ===============================================================================
+ecbuild_bundle_finalize()
