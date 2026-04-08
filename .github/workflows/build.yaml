@@ -26,7 +26,7 @@ jobs:
       with:
         path: |
           ${{ github.workspace }}/Build/oops
-          ${{ github.workspace }}/Build/lib/liboops.so
+          ${{ github.workspace }}/Build/lib
           ${{ github.workspace }}/i-jedi/bundle/oops
         key: ${{ runner.os }}-oops-${{ steps.dep-hashes.outputs.oops }}
     # - name: Cache VADER
