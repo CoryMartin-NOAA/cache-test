@@ -57,6 +57,8 @@ jobs:
         ls -l Build
         ls -l Build/*
         pwd
+        cp -r Build/lib_out/* Build/lib/.
+        ls -l Build/*
 
     - name: Run ecbuild
       shell: bash
