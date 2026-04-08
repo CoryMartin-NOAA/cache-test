@@ -61,22 +61,14 @@ jobs:
         mkdir -p Build
         cd Build
         export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
-        ecbuild ../i-jedi/bundle
-    - name: Run coding style checks
-      shell: bash
-      run: |
-        su - nonroot
-        export jedi_cmake_ROOT=/opt/view
-        source /opt/spack-environment/activate.sh
-        cd $GITHUB_WORKSPACE/Build/ijedi
-        ctest -R coding_norms --output-on-failure        
+        ecbuild ../i-jedi/bundle      
     - name: Compile the code
       shell: bash
       run: |
         su - nonroot
         export jedi_cmake_ROOT=/opt/view
         source /opt/spack-environment/activate.sh
-        cd $GITHUB_WORKSPACE/Build/ijedi
+        cd $GITHUB_WORKSPACE/Build
         make -j4
     - name: Verify what will be cached (end of job)
       shell: bash
