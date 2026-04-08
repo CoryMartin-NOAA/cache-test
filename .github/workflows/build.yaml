@@ -29,15 +29,15 @@ jobs:
           ${{ github.workspace }}/Build/lib/liboops.so
           ${{ github.workspace }}/i-jedi/bundle/oops
         key: ${{ runner.os }}-oops-${{ steps.dep-hashes.outputs.oops }}
-    - name: Cache VADER
-      id: cache-vader
-      uses: actions/cache@v5
-      with:
-        path: |
-          ${{ github.workspace }}/Build/vader
-          ${{ github.workspace }}/Build/lib/libvader.so
-          ${{ github.workspace }}/i-jedi/bundle/vader
-        key: ${{ runner.os }}-vader-${{ steps.dep-hashes.outputs.vader }}
+    # - name: Cache VADER
+    #   id: cache-vader
+    #   uses: actions/cache@v5
+    #   with:
+    #     path: |
+    #       ${{ github.workspace }}/Build/vader
+    #       ${{ github.workspace }}/Build/lib/libvader.so
+    #       ${{ github.workspace }}/i-jedi/bundle/vader
+    #     key: ${{ runner.os }}-vader-${{ steps.dep-hashes.outputs.vader }}
     - name: Show me things
       shell: bash
       run: |
