@@ -41,7 +41,7 @@ ecbuild_bundle( PROJECT vader     GIT    "https://github.com/JCSDA/vader.git" UP
 if (BUILD_IODA)
   ecbuild_bundle( PROJECT ioda      GIT    "https://github.com/JCSDA/ioda.git"       UPDATE BRANCH develop )
 endif()
-#ecbuild_bundle( PROJECT ufo       GIT    "https://github.com/JCSDA/ufo.git"        UPDATE BRANCH develop )
+ecbuild_bundle( PROJECT ufo       GIT    "https://github.com/JCSDA/ufo.git"        UPDATE BRANCH develop )
 #ecbuild_bundle(PROJECT ijedi SOURCE "../")
 
 # ===============================================================================
