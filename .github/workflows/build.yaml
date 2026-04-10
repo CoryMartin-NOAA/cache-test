@@ -20,13 +20,16 @@ jobs:
         echo "oops=$(git ls-remote https://github.com/NOAA-EMC/oops.git feature/mist | cut -f1)" >> $GITHUB_OUTPUT
         echo "vader=$(git ls-remote https://github.com/JCSDA/vader.git develop | cut -f1)" >> $GITHUB_OUTPUT
         mkdir -p $GITHUB_WORKSPACE/Build/lib
-        mkdir -p $GITHUB_WORKSPACE/install/lib
+        mkdir -p $GITHUB_WORKSPACE/install/lib/cmake
+        mkdir -p $GITHUB_WORKSPACE/install/include
     - name: Cache OOPS
       id: cache-oops
       uses: actions/cache@v5
       with:
         path: |
           ${{ github.workspace }}/install/lib/liboops.so
+          ${{ github.workspace }}/install/lib/cmake/oops/
+          ${{ github.workspace }}/install/include/oops/
         key: ${{ runner.os }}-oops-${{ steps.dep-hashes.outputs.oops }}
     # - name: Cache VADER
     #   id: cache-vader
