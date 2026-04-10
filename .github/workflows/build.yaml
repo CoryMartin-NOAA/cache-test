@@ -29,13 +29,6 @@ jobs:
           ${{ github.workspace }}/Build/lib
           ${{ github.workspace }}/i-jedi/bundle/oops
         key: ${{ runner.os }}-oops-${{ steps.dep-hashes.outputs.oops }}
-    - name: Cache OOPS OUT
-      id: cache-oops-out
-      uses: actions/cache@v5
-      with:
-        path: |
-          ${{ github.workspace }}/Build/lib_out
-        key: ${{ runner.os }}-oops-out-${{ steps.dep-hashes.outputs.oops }}
     # - name: Cache VADER
     #   id: cache-vader
     #   uses: actions/cache@v5
@@ -57,7 +50,6 @@ jobs:
         ls -l Build
         ls -l Build/*
         pwd
-        cp -r Build/lib_out/oops/* Build/lib/.
         ls -l Build/*
 
     - name: Run ecbuild
@@ -98,8 +90,6 @@ jobs:
         ls -l ../
         ls -l Build
         ls -l Build/*
-        mkdir -p Build/lib_out/oops
-        cp Build/lib/liboops.so Build/lib_out/oops/liboops.so
     # - name: Run ctests
     #   shell: bash
     #   run: |
