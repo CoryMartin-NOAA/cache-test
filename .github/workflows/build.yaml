@@ -50,6 +50,7 @@ jobs:
         ls -l Build/*
         pwd
         ls -l Build/*
+        ls -l $GITHUB_WORKSPACE/install/lib
 
     - name: Run ecbuild without any cache
       if: steps.cache-oops.outputs.cache-hit != 'true'
@@ -102,6 +103,7 @@ jobs:
         ls -l ../
         ls -l Build
         ls -l Build/*
+        ls -l $GITHUB_WORKSPACE/install/*
     # - name: Run ctests
     #   shell: bash
     #   run: |
