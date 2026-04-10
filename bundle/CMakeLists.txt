@@ -2,6 +2,18 @@ cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 
 project(ijedi-bundle VERSION 0.0.1 LANGUAGES C CXX Fortran)
 
+# Put libs in lib, executables in bin (GNU-ish layout)
+include(GNUInstallDirs)
+
+# Use relative RPATH in the *installed* artifacts:
+# - executables look for libs in ../lib relative to bin/
+# - shared libs look for deps in their own directory
+set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+
+# Avoid keeping build-tree rpaths
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 find_package(ecbuild 3.5 REQUIRED)
 include(ecbuild_bundle)
 
