@@ -70,7 +70,7 @@ jobs:
         mkdir -p Build
         cd Build
         export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
-        ecbuild ../i-jedi/bundle      
+        ecbuild -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install ../i-jedi/bundle      
     - name: Compile the code
       shell: bash
       run: |
@@ -79,6 +79,7 @@ jobs:
         source /opt/spack-environment/activate.sh
         cd $GITHUB_WORKSPACE/Build
         make -j4
+        make install
     - name: Verify what will be cached (end of job)
       shell: bash
       run: |
@@ -91,6 +92,7 @@ jobs:
         cd $GITHUB_WORKSPACE
         pwd
         ls -l
+        ls -l *
         ls -l i-jedi
         ls -l i-jedi/bundle
         ls -l ../

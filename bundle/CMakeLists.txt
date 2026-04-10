@@ -23,6 +23,8 @@ option("BUNDLE_SKIP_ATLAS" "Don't build atlas" "ON") # Skip atlas build unless u
 option(ENABLE_LORENZ95_MODEL "Build Lorenz95 toy model" OFF)
 option(ENABLE_QG_MODEL "Build QG toy model" OFF)
 
+option(BUILD_OOPS "Build OOPS" ON)
+
 ecbuild_bundle(PROJECT eckit GIT "https://github.com/ecmwf/eckit.git" TAG 1.16.0)
 ecbuild_bundle(PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.2)
 ecbuild_bundle(PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.35.0)
@@ -32,7 +34,9 @@ ecbuild_bundle(PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.35.0
 
 # ===============================================================================
 ecbuild_bundle( PROJECT jedicmake GIT    "https://github.com/jcsda/jedi-cmake.git" UPDATE BRANCH develop RECURSIVE )
-#ecbuild_bundle( PROJECT oops      GIT    "https://github.com/NOAA-EMC/oops.git" UPDATE BRANCH feature/mist )
+if(BUILD_OOPS)
+  ecbuild_bundle( PROJECT oops      GIT    "https://github.com/NOAA-EMC/oops.git" UPDATE BRANCH feature/mist )
+endif()
 ecbuild_bundle( PROJECT vader     GIT    "https://github.com/JCSDA/vader.git" UPDATE BRANCH develop)
 
 # ecbuild_bundle( PROJECT saber     GIT    "https://github.com/JCSDA/saber.git"      UPDATE BRANCH develop )
