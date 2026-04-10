@@ -56,7 +56,7 @@ jobs:
         ls -l $GITHUB_WORKSPACE/install/lib
 
     - name: Run ecbuild without any cache
-      if: steps.cache-oops.outputs.cache-hit != 'true'
+      if: steps.cache-ioda.outputs.cache-hit != 'true'
       shell: bash
       run: |
         su - nonroot
