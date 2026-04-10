@@ -22,15 +22,15 @@ jobs:
         mkdir -p $GITHUB_WORKSPACE/Build/lib
         mkdir -p $GITHUB_WORKSPACE/install/lib/cmake
         mkdir -p $GITHUB_WORKSPACE/install/include
-    - name: Cache OOPS
-      id: cache-oops
+    - name: Cache IODA
+      id: cache-ioda
       uses: actions/cache@v5
       with:
         path: |
-          ${{ github.workspace }}/install/lib/liboops.so
-          ${{ github.workspace }}/install/lib/cmake/oops/
-          ${{ github.workspace }}/install/include/oops/
-        key: ${{ runner.os }}-oops-${{ steps.dep-hashes.outputs.oops }}
+          ${{ github.workspace }}/install/lib/libioda.so
+          ${{ github.workspace }}/install/lib/cmake/ioda/
+          ${{ github.workspace }}/install/include/ioda/
+        key: ${{ runner.os }}-ioda-${{ steps.dep-hashes.outputs.ioda }}
     # - name: Cache VADER
     #   id: cache-vader
     #   uses: actions/cache@v5
@@ -67,8 +67,8 @@ jobs:
         cd Build
         export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
         ecbuild -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install ../i-jedi/bundle      
-    - name: Run ecbuild with cached oops
-      if: steps.cache-oops.outputs.cache-hit == 'true'
+    - name: Run ecbuild with cached ioda
+      if: steps.cache-ioda.outputs.cache-hit == 'true'
       shell: bash
       run: |
         su - nonroot
@@ -78,7 +78,7 @@ jobs:
         mkdir -p Build
         cd Build
         export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
-        ecbuild -DBUILD_OOPS=OFF -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/install ../i-jedi/bundle   
+        ecbuild -DBUILD_IODA=OFF -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/install ../i-jedi/bundle   
     - name: Compile the code
       shell: bash
       run: |
@@ -93,7 +93,7 @@ jobs:
       run: |
         set -euxo pipefail
         ls -l "${GITHUB_WORKSPACE}/Build/lib" || true
-        find "${GITHUB_WORKSPACE}/Build" -name "liboops.so" -print || true
+        find "${GITHUB_WORKSPACE}/Build" -name "libioda.so" -print || true
     - name: Show me more things
       shell: bash
       run: |
