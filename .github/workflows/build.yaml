@@ -27,19 +27,8 @@ jobs:
       uses: actions/cache@v5
       with:
         path: |
-          ${{ github.workspace }}/install/lib/libioda.so
-          ${{ github.workspace }}/install/lib/cmake/ioda/
-          ${{ github.workspace }}/install/include/ioda/
+          ${{ github.workspace }}/install
         key: ${{ runner.os }}-ioda-${{ steps.dep-hashes.outputs.ioda }}
-    # - name: Cache VADER
-    #   id: cache-vader
-    #   uses: actions/cache@v5
-    #   with:
-    #     path: |
-    #       ${{ github.workspace }}/Build/vader
-    #       ${{ github.workspace }}/Build/lib/libvader.so
-    #       ${{ github.workspace }}/i-jedi/bundle/vader
-    #     key: ${{ runner.os }}-vader-${{ steps.dep-hashes.outputs.vader }}
     - name: Show me things
       shell: bash
       run: |
@@ -48,72 +37,37 @@ jobs:
         ls -l
         ls -l i-jedi
         ls -l i-jedi/bundle
-        ls -l ../
         ls -l Build
-        ls -l Build/*
-        pwd
-        ls -l Build/*
-        ls -l $GITHUB_WORKSPACE/install/lib
+        ls -l install || true
 
-    - name: Run ecbuild without any cache
-      if: steps.cache-ioda.outputs.cache-hit != 'true'
+    - name: Run ecbuild
       shell: bash
       run: |
-        su - nonroot
+        # Use root to avoid permission issues in GITHUB_WORKSPACE
         export jedi_cmake_ROOT=/opt/view
         source /opt/spack-environment/activate.sh
         cd $GITHUB_WORKSPACE
         mkdir -p Build
         cd Build
         export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
-        ecbuild -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install ../i-jedi/bundle      
-    - name: Run ecbuild with cached ioda
-      if: steps.cache-ioda.outputs.cache-hit == 'true'
-      shell: bash
-      run: |
-        su - nonroot
-        export jedi_cmake_ROOT=/opt/view
-        source /opt/spack-environment/activate.sh
-        cd $GITHUB_WORKSPACE
-        mkdir -p Build
-        cd Build
-        export IJEDI_MPI_ARGS="--map-by :OVERSUBSCRIBE"
-        ecbuild -DBUILD_IODA=OFF -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/install ../i-jedi/bundle   
+
+        if [[ "${{ steps.cache-ioda.outputs.cache-hit }}" == "true" ]]; then
+          echo "Using cached IODA"
+          ecbuild -DBUILD_IODA=OFF -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/install ../i-jedi/bundle
+        else
+          echo "Building IODA from source"
+          ecbuild -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install ../i-jedi/bundle
+        fi
+
     - name: Compile the code
       shell: bash
       run: |
-        su - nonroot
         export jedi_cmake_ROOT=/opt/view
         source /opt/spack-environment/activate.sh
         cd $GITHUB_WORKSPACE/Build
         make -j4
         make install
-    - name: Verify what will be cached (end of job)
+    - name: Verify installation
       shell: bash
       run: |
-        set -euxo pipefail
-        ls -l "${GITHUB_WORKSPACE}/Build/lib" || true
-        find "${GITHUB_WORKSPACE}/Build" -name "libioda.so" -print || true
-    - name: Show me more things
-      shell: bash
-      run: |
-        cd $GITHUB_WORKSPACE
-        pwd
-        ls -l
-        ls -l *
-        ls -l i-jedi
-        ls -l i-jedi/bundle
-        ls -l ../
-        ls -l Build
-        ls -l Build/*
-        ls -l $GITHUB_WORKSPACE/install/*
-    # - name: Run ctests
-    #   shell: bash
-    #   run: |
-    #     su - nonroot
-    #     export jedi_cmake_ROOT=/opt/view
-    #     source /opt/spack-environment/activate.sh
-    #     cd $GITHUB_WORKSPACE/Build/ijedi
-    #     export OMPI_ALLOW_RUN_AS_ROOT=1
-    #     export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-    #     ctest --rerun-failed --output-on-failure --allow-run-as-root
+        ls -R $GITHUB_WORKSPACE/install
